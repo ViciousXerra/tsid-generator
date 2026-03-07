@@ -8,6 +8,7 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/development-pr-ci.yml'
+      - 'pom.xml'
 
 jobs:
   build:
