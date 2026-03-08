@@ -30,7 +30,7 @@ jobs:
         id: base
         run: |
           BASE_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
-          echo "base_version = $BASE_VERSION" >> GITHUB_OUTPUT
+          echo "base_version=$BASE_VERSION" >> GITHUB_OUTPUT
         shell: bash
       - name: Checkout merged branch
         uses: actions/checkout@v4
@@ -41,12 +41,12 @@ jobs:
         id: head
         run: |
           HEAD_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
-          echo "head_version = $HEAD_VERSION" >> GITHUB_OUTPUT
+          echo "head_version=$HEAD_VERSION" >> GITHUB_OUTPUT
       - name: Compare versions
         id: compare
         run: |
           COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_version }} ${{ steps.head.outputs.head_version }})
-          echo "compare_ver_result = $COMPARE_RESULT" >> GITHUB_OUTPUT
+          echo "compare_ver_result=$COMPARE_RESULT" >> GITHUB_OUTPUT
       - name: Validate head version
         run: |
           if [ ${{ steps.compare.outputs.compare_ver_result }} < 0]; then
