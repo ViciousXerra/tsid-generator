@@ -30,6 +30,7 @@ jobs:
         id: base
         run: |
           BASE_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "base = $BASE_VERSION"
           echo "base_version=$BASE_VERSION" >> GITHUB_OUTPUT
         shell: bash
       - name: Checkout merged branch
@@ -41,6 +42,7 @@ jobs:
         id: head
         run: |
           HEAD_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "head = $HEAD_VERSION"
           echo "head_version=$HEAD_VERSION" >> GITHUB_OUTPUT
       - name: Compare versions
         id: compare
