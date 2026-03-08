@@ -29,8 +29,9 @@ jobs:
       - name: Evaluate project version from base commit before merge
         id: base
         run: |
-          BASE_VERSION = $(mvn help:evaluate -Dexpression=revision -q -DforceStdout)
+          BASE_VERSION = $(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
           echo "base_version = $BASE_VERSION" >> GITHUB_OUTPUT
+        shell: bash
       - name: Checkout merged branch
         uses: actions/checkout@v4
         with:
