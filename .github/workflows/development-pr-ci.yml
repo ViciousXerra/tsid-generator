@@ -53,7 +53,7 @@ jobs:
       - name: Validate head version
         run: |
           if [${{ steps.compare.outputs.compare_ver_result }} < 0]; then
-            echo "Head version ${{ steps.head.outputs.head_version }} lesser than previous committed version ${{ steps.base.outputs.base_version }}" >&2
+            echo "Head version ${{ steps.head.outputs.head_version }} lesser than previous committed version ${{ steps.base.outputs.base_version }}"
             exit 1
           fi
       - name: Build and test with Maven
