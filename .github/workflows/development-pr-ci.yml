@@ -21,5 +21,37 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+      - name: Checkout base commit before merge
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+      - name: Evaluate project version from base commit before merge
+        id: base
+        run: |
+          BASE_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "base_version=$BASE_VERSION" >> GITHUB_OUTPUT
+        shell: bash
+      - name: Checkout merged branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Evaluate project version from head
+        id: head
+        run: |
+          HEAD_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "head_version=$HEAD_VERSION" >> GITHUB_OUTPUT
+      - name: Compare versions
+        id: compare
+        run: |
+          COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_version }} ${{ steps.head.outputs.head_version }})
+          echo "compare_ver_result=$COMPARE_RESULT" >> GITHUB_OUTPUT
+      - name: Validate head version
+        run: |
+          if [ ${{ steps.compare.outputs.compare_ver_result }} < 0]; then
+            echo "Head version ${{ steps.head.outputs.head_version }} lesser than previous committed version ${{ steps.base.outputs.base_version }}" >&2
+            exit 1
+          fi
       - name: Build and test with Maven
         run: ./mvnw -B verify --file pom.xml
