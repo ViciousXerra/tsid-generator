@@ -26,32 +26,30 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
-      - name: Evaluate project version from base commit before merge
+      - name: Evaluate project revision from base commit before merge
         id: base
         run: |
-          BASE_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
-          echo "base_version=$BASE_VERSION" >> GITHUB_OUTPUT
-        shell: bash
+          BASE_REVISION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "base_revision=$BASE_REVISION" >> $GITHUB_OUTPUT
       - name: Checkout merged branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - name: Evaluate project version from head
+      - name: Evaluate project revision from head
         id: head
         run: |
-          HEAD_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
-          echo "head_version=$HEAD_VERSION" >> GITHUB_OUTPUT
+          HEAD_REVISION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          echo "head_revision=$HEAD_REVISION" >> $GITHUB_OUTPUT
       - name: Compare versions
         id: compare
         run: |
-          COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_version }} ${{ steps.head.outputs.head_version }})
-          echo "compare_ver_result=$COMPARE_RESULT" >> GITHUB_OUTPUT
-      - name: Validate head version
+          COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_revision }} ${{ steps.head.outputs.head_revision }})
+          echo "compare_revision_result=$COMPARE_RESULT" >> $GITHUB_OUTPUT
+      - name: Validate head revision
+        if: steps.compare.outputs.compare_revision_result < 0
         run: |
-          if [ ${{ steps.compare.outputs.compare_ver_result }} < 0]; then
-            echo "Head version ${{ steps.head.outputs.head_version }} lesser than previous committed version ${{ steps.base.outputs.base_version }}" >&2
-            exit 1
-          fi
+          echo "Head revision ${{ steps.head.outputs.head_revision }} lesser than previous committed revision ${{ steps.base.outputs.base_revision }}"
+          exit 1
       - name: Build and test with Maven
         run: ./mvnw -B verify --file pom.xml
