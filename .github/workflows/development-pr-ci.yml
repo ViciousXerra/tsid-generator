@@ -40,7 +40,7 @@ jobs:
         id: head
         run: |
           HEAD_REVISION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
-          echo "head_revision=HEAD_REVISION" >> $GITHUB_OUTPUT
+          echo "head_revision=$HEAD_REVISION" >> $GITHUB_OUTPUT
       - name: Compare versions
         id: compare
         run: |
