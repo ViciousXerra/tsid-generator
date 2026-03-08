@@ -40,12 +40,12 @@ jobs:
       - name: Evaluate project version from head
         id: head
         run: |
-          HEAD_VERSION = $(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
+          HEAD_VERSION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
           echo "head_version = $HEAD_VERSION" >> GITHUB_OUTPUT
       - name: Compare versions
         id: compare
         run: |
-          COMPARE_RESULT = $(/bin/bash /.github/workflows/semver-compare.sh ${{ steps.base.outputs.base_version }} ${{ steps.head.outputs.head_version }})
+          COMPARE_RESULT=$(/bin/bash /.github/workflows/semver-compare.sh ${{ steps.base.outputs.base_version }} ${{ steps.head.outputs.head_version }})
           echo "compare_ver_result = $COMPARE_RESULT" >> GITHUB_OUTPUT
       - name: Validate head version
         run: |
