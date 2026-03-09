@@ -25,8 +25,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: github
-          settings-path: ${{ github.workspace }}
           cache: maven
       - name: Checkout base commit before merge
         uses: actions/checkout@v4
