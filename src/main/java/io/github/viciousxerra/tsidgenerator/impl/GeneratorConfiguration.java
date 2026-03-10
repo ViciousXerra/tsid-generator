@@ -7,10 +7,8 @@ import io.github.viciousxerra.tsidgenerator.api.ShardIdSettings;
 import io.github.viciousxerra.tsidgenerator.api.TimeSortedUniqueIdGenerator;
 import io.github.viciousxerra.tsidgenerator.api.TimestampSettings;
 import io.github.viciousxerra.tsidgenerator.exception.TimelineBeforeStartPointException;
-import org.apache.commons.lang3.Validate;
-
 import java.time.OffsetDateTime;
-
+import org.apache.commons.lang3.Validate;
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.DATA_CENTER_ID_MUST_NOT_BE_GREATER_THAN_MESSAGE_TEMPLATE;
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.GENERAL_BIT_SIZE_EXCEEDED_MESSAGE;
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.MACHINE_ID_MUST_NOT_BE_GREATER_THAN_MESSAGE_TEMPLATE;
@@ -186,24 +184,27 @@ public final class GeneratorConfiguration implements Configuration {
          * @return {@link Configuration} for using in creating factory for creating default implementation of
          * {@link TimeSortedUniqueIdGenerator}
          * @throws NullPointerException              if passed {@link OffsetDateTime} startPoint or
-         *                                           {@link SequenceOverflowHandleStrategy} sequenceOverflowStrategy is null.
+         *                                           {@link SequenceOverflowHandleStrategy} sequenceOverflowStrategy
+         *                                           is null.
          * @throws TimelineBeforeStartPointException if passed {@link OffsetDateTime} startPoint is ahead from current
          *                                           time.
-         * @throws IllegalArgumentException          if passed timestamp bits less than 39 (this implementation guarantees
-         *                                           validity for 10 years)
-         *                                           or number of granted bits for sequence is not specified / not positive.
+         * @throws IllegalArgumentException          if passed timestamp bits less than 39 (this implementation
+         *                                           guarantees validity for 10 years) or number of granted bits for
+         *                                           sequence is not specified / not positive.
          * @throws IllegalArgumentException          if attempted to build unsupported configuration.
          *                                           <p>
-         *                                           1) Use the builder without specifying shard coordinates and corresponding bit range completely if you don't
-         *                                           need them.
+         *                                           1) Use the builder without specifying shard coordinates and
+         *                                           corresponding bit range completely if you don't need them.
          *                                           <p>
-         *                                           2) Use the builder with specifying non-negative shard ID (optional, 0 if not specified) and corresponding
-         *                                           bit range only.
+         *                                           2) Use the builder with specifying non-negative shard ID
+         *                                           (optional, 0 if not specified) and corresponding bit range only.
          *                                           <p>
-         *                                           3) Use the builder with specifying non-negative data center ID (optional, 0 if not specified) and
-         *                                           non-negative machine ID (optional, 0 if not specified) and corresponding bit ranges only.
-         * @throws IllegalArgumentException          if shard ID, data center ID or machine ID greater than maximum value for
-         *                                           related number of granted bits (for example 5 bits stores maximum 31).
+         *                                           3) Use the builder with specifying non-negative data center ID
+         *                                           (optional, 0 if not specified) and non-negative machine ID
+         *                                           (optional, 0 if not specified) and corresponding bit ranges only.
+         * @throws IllegalArgumentException          if shard ID, data center ID or machine ID greater than maximum
+         *                                           value for related number of granted bits (for example 5 bits
+         *                                           stores maximum 31).
          */
         public GeneratorConfiguration build() {
             Validate.notNull(startPoint, START_POINT_NULL_MESSAGE);
@@ -214,13 +215,13 @@ public final class GeneratorConfiguration implements Configuration {
             Validate.notNull(sequenceOverflowHandleStrategy, SEQUENCE_OVERFLOW_HANDLER_STRATEGY_NULL_MESSAGE);
             boolean shardIdNotSpecified = shardId == 0 && shardIdBits == 0;
             boolean dataCenterIdAndMachineIdNotSpecified =
-                    dataCenterId == 0 && dataCenterIdBits == 0 &&
-                            machineId == 0 && machineIdBits == 0;
+                    dataCenterId == 0 && dataCenterIdBits == 0
+                            && machineId == 0 && machineIdBits == 0;
             boolean withoutShardCoordinates = shardIdNotSpecified && dataCenterIdAndMachineIdNotSpecified;
             boolean withShardId = shardId >= 0 && shardIdBits > 0 && dataCenterIdAndMachineIdNotSpecified;
             boolean withCoupledDataCenterIdAndMachineId =
-                    shardIdNotSpecified && dataCenterId >= 0 && dataCenterIdBits > 0 &&
-                            machineId >= 0 && machineIdBits > 0;
+                    shardIdNotSpecified && dataCenterId >= 0 && dataCenterIdBits > 0
+                            && machineId >= 0 && machineIdBits > 0;
             Validate.isTrue(withoutShardCoordinates || withShardId || withCoupledDataCenterIdAndMachineId,
                     UNSUPPORTED_CONFIGURATION_MESSAGE);
             int timestampAndSequenceGrantedBitsNumbersSum = Math.addExact(timestampBits, sequenceBits);
@@ -241,12 +242,15 @@ public final class GeneratorConfiguration implements Configuration {
                 Validate.isTrue(machineIdMaxValue >= machineId,
                         MACHINE_ID_MUST_NOT_BE_GREATER_THAN_MESSAGE_TEMPLATE, machineIdMaxValue);
             }
-            TimestampSettings timestampSettings = new TimestampSettings(startPoint, BitUtils.getLongMaxValue(timestampBits), timestampBits);
+            TimestampSettings timestampSettings = new TimestampSettings(startPoint,
+                    BitUtils.getLongMaxValue(timestampBits), timestampBits);
             ShardIdSettings[] shardIdSettings =
                     withoutShardCoordinates ? new ShardIdSettings[0]
                             : withShardId ? new ShardIdSettings[]{new ShardIdSettings(shardId, shardIdBits)}
-                            : new ShardIdSettings[]{new ShardIdSettings(dataCenterId, dataCenterIdBits), new ShardIdSettings(machineId, machineIdBits)};
-            SequenceSettings sequenceSettings = new SequenceSettings(BitUtils.getIntMaxValue(sequenceBits), sequenceBits, sequenceOverflowHandleStrategy);
+                            : new ShardIdSettings[]{new ShardIdSettings(dataCenterId, dataCenterIdBits),
+                            new ShardIdSettings(machineId, machineIdBits)};
+            SequenceSettings sequenceSettings = new SequenceSettings(BitUtils.getIntMaxValue(sequenceBits),
+                    sequenceBits, sequenceOverflowHandleStrategy);
             return new GeneratorConfiguration(timestampSettings, shardIdSettings, sequenceSettings);
         }
     }

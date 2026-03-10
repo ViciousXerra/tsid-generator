@@ -3,7 +3,6 @@ package io.github.viciousxerra.tsidgenerator.impl;
 import io.github.viciousxerra.tsidgenerator.api.Configuration;
 import io.github.viciousxerra.tsidgenerator.api.ShardIdSettings;
 import io.github.viciousxerra.tsidgenerator.api.TimeSortedUniqueId;
-
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -47,7 +46,9 @@ final class TimeSortedUniqueIdImpl implements TimeSortedUniqueId {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof TimeSortedUniqueIdImpl that)) return false;
+        if (!(o instanceof TimeSortedUniqueIdImpl that)) {
+            return false;
+        }
         return startPoint == that.startPoint
                 && millis == that.millis
                 && sequence == that.sequence
@@ -62,13 +63,13 @@ final class TimeSortedUniqueIdImpl implements TimeSortedUniqueId {
 
     @Override
     public String toString() {
-        return "TimeSortedUniqueId{" +
-                "timestamp=" + getTimestamp() +
-                ", millis=" + millis +
-                ", shardCoordinates=" + Arrays.toString(shardCoordinates) +
-                ", sequence=" + sequence +
-                ", rawValue=" + rawValue +
-                '}';
+        return "TimeSortedUniqueId{"
+                + "timestamp=" + getTimestamp()
+                + ", millis=" + millis
+                + ", shardCoordinates=" + Arrays.toString(shardCoordinates)
+                + ", sequence=" + sequence
+                + ", rawValue=" + rawValue
+                + '}';
     }
 
     @Override
@@ -94,7 +95,8 @@ final class TimeSortedUniqueIdImpl implements TimeSortedUniqueId {
     private static long fillBits(Configuration configuration, long millis, int sequence) {
         var shardIdShifts = new int[configuration.getShardIdSettings().length];
         if (configuration.getShardIdSettings().length != 0) {
-            shardIdShifts[configuration.getShardIdSettings().length - 1] = configuration.getSequenceSettings().grantedBits();
+            shardIdShifts[configuration.getShardIdSettings().length - 1] =
+                    configuration.getSequenceSettings().grantedBits();
             for (int i = configuration.getShardIdSettings().length - 2; i >= 0; i--) {
                 shardIdShifts[i] = shardIdShifts[i + 1] + configuration.getShardIdSettings()[i + 1].grantedBits();
             }

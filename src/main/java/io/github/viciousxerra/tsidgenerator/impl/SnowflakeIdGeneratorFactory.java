@@ -3,11 +3,11 @@ package io.github.viciousxerra.tsidgenerator.impl;
 import io.github.viciousxerra.tsidgenerator.api.Configuration;
 import io.github.viciousxerra.tsidgenerator.api.SequenceOverflowHandleStrategy;
 import io.github.viciousxerra.tsidgenerator.api.TimeSortedUniqueIdGenerator;
-
 import java.time.OffsetDateTime;
 
 /**
- * A factory class which produces default implementation of {@link TimeSortedUniqueIdGenerator} with Snowflake ID preset.
+ * A factory class which produces default implementation of {@link TimeSortedUniqueIdGenerator} with
+ * Snowflake ID preset.
  */
 public final class SnowflakeIdGeneratorFactory extends DefaultTimeSortedUniqueIdGeneratorFactory {
 
@@ -24,7 +24,8 @@ public final class SnowflakeIdGeneratorFactory extends DefaultTimeSortedUniqueId
      * @param shardId                        shard ID.
      * @param sequenceOverflowHandleStrategy sequence overflow handle strategy related enumeration.
      */
-    public SnowflakeIdGeneratorFactory(OffsetDateTime odt, int shardId, SequenceOverflowHandleStrategy sequenceOverflowHandleStrategy) {
+    public SnowflakeIdGeneratorFactory(OffsetDateTime odt, int shardId,
+                                       SequenceOverflowHandleStrategy sequenceOverflowHandleStrategy) {
         super(new GeneratorConfiguration.Builder()
                 .withStartPoint(odt)
                 .withTimestampBits(SNOWFLAKE_ID_TIMESTAMP_BITS)

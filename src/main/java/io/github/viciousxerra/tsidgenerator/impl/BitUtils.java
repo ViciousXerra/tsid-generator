@@ -1,7 +1,6 @@
 package io.github.viciousxerra.tsidgenerator.impl;
 
 import io.github.viciousxerra.tsidgenerator.exception.BitOverflowException;
-
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.BIT_OVERFLOW_MESSAGE_TEMPLATE;
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.MAX_INT_BIT_SIZE_EXCEEDED;
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.MAX_LONG_BIT_SIZE_EXCEEDED;

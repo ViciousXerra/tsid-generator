@@ -6,9 +6,7 @@ import io.github.viciousxerra.tsidgenerator.api.TimeSortedUniqueId;
 import io.github.viciousxerra.tsidgenerator.api.TimeSortedUniqueIdGenerator;
 import io.github.viciousxerra.tsidgenerator.api.TimelineProvider;
 import io.github.viciousxerra.tsidgenerator.exception.UnsupportedSequenceOverflowHandleStrategyException;
-
 import java.util.concurrent.locks.ReentrantLock;
-
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.UNSUPPORTED_SEQUENCE_OVERFLOW_HANDLER_STRATEGY_MESSAGE;
 
 final class TimeSortedUniqueIdGeneratorImpl implements TimeSortedUniqueIdGenerator {
