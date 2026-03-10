@@ -16,7 +16,7 @@
         <maven.surefire.version>3.5.5</maven.surefire.version>
         <maven.flatten.plugin>1.7.3</maven.flatten.plugin>
         <maven.versions.plugin>2.21.0</maven.versions.plugin>
-        <revision>0.1.0</revision>
+        <revision>0.2.0</revision>
         <changelist>-SNAPSHOT</changelist>
     </properties>
 
