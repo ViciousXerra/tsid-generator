@@ -1,11 +1,9 @@
 package io.github.viciousxerra.tsidgenerator.impl;
 
 import io.github.viciousxerra.tsidgenerator.exception.SequenceOverflowException;
-
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
-
 import static io.github.viciousxerra.tsidgenerator.impl.StringTemplates.SEQUENCE_OVERFLOW_MESSAGE;
 
 final class SequenceOverflowHandlerUtils {
