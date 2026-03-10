@@ -1,18 +1,23 @@
-name: Build and test.
+name: Build and deploy snapshot.
 
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - development
+    types:
+      - closed
     paths:
       - 'src/**'
-      - '.github/workflows/development-pr-ci.yml'
+      - '.github/workflows/development-deploy-snapshot.yml'
       - 'pom.xml'
 
 jobs:
-  build:
+  deploy_and_tag:
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -46,10 +51,25 @@ jobs:
         run: |
           COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_revision }} ${{ steps.head.outputs.head_revision }})
           echo "compare_revision_result=$COMPARE_RESULT" >> $GITHUB_OUTPUT
-      - name: Validate head revision
-        if: steps.compare.outputs.compare_revision_result < 0
+      - name: Evaluate new -SNAPSHOT version
+        id: project_version
+        if: steps.compare.outputs.compare_revision_result == 1
         run: |
-          echo "Head revision ${{ steps.head.outputs.head_revision }} lesser than previous committed revision ${{ steps.base.outputs.base_revision }}"
-          exit 1
-      - name: Build and test with Maven
-        run: ./mvnw -B verify --file pom.xml
+          PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "new_snapshot_version=v$PROJECT_VERSION" >> $GITHUB_OUTPUT
+      - name: Build and publish JAR with -SNAPSHOT version
+        run: ./mvnw -B deploy --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tagging commit with new -SNAPSHOT version
+        if: steps.compare.outputs.compare_revision_result == 1
+        env:
+          GH_TOKEN: ${{ secrets.TAG_COMMIT_TOKEN }}
+        run: |
+          echo "Tagging HEAD commit:"
+          echo "version: ${{ steps.project_version.outputs.new_snapshot_version }}"
+          echo "commit SHA: ${{ github.event.pull_request.head.sha }}
+          gh api --method POST -H "Accept: application/vnd.github.v3+json" \
+            /repos/${{ github.repository }}/git/refs \
+            -f ref='refs/tags/${{ steps.project_version.outputs.new_snapshot_version }}' \
+            -f sha='${{ github.event.pull_request.head.sha }}'
