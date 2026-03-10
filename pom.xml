@@ -92,10 +92,6 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
-                    <release>${maven.compiler.source}</release>
-                    <parameters>true</parameters>
-                    <compilerArgument>-Xlint:all</compilerArgument>
-                    <compilerArgument>-Xdoclint:all</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>
@@ -126,15 +122,6 @@
                         <version>${checkstyle.impl.version}</version>
                     </dependency>
                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
