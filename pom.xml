@@ -9,8 +9,10 @@
     <version>${revision}${changelist}</version>
 
     <properties>
+<!--        CI friendly props-->
         <revision>0.2.0</revision>
         <changelist>-SNAPSHOT</changelist>
+<!--        Project related props and Maven plugins versions -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,6 +23,7 @@
         <maven.surefire.version>3.5.5</maven.surefire.version>
         <maven.flatten.plugin>1.7.3</maven.flatten.plugin>
         <maven.versions.plugin>2.21.0</maven.versions.plugin>
+<!--        Dependencies versions props-->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
         <junit.version>6.0.3</junit.version>
         <assertj.version>3.27.7</assertj.version>
@@ -147,6 +150,15 @@
                         <version>${checkstyle.impl.version}</version>
                     </dependency>
                 </dependencies>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
