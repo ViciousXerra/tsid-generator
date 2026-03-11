@@ -10,7 +10,7 @@
 
     <properties>
 <!--        CI friendly props-->
-        <revision>0.2.0</revision>
+        <revision>0.3.0</revision>
         <changelist>-SNAPSHOT</changelist>
 <!--        Project related props and Maven plugins versions -->
         <maven.compiler.source>21</maven.compiler.source>
