@@ -21,6 +21,7 @@
         <maven.checkstyle.version>3.6.0</maven.checkstyle.version>
         <checkstyle.impl.version>10.12.7</checkstyle.impl.version>
         <maven.surefire.version>3.5.5</maven.surefire.version>
+        <maven.jacoco.version>0.8.14</maven.jacoco.version>
         <maven.flatten.plugin>1.7.3</maven.flatten.plugin>
         <maven.versions.plugin>2.21.0</maven.versions.plugin>
         <!--        Dependencies versions props-->
@@ -128,7 +129,7 @@
                 <version>${maven.surefire.version}</version>
                 <configuration>
                     <argLine>
-                        ${argLine}
+                        @{argLine}
                         -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
                         -Xshare:off
                     </argLine>
@@ -137,7 +138,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
+                <version>${maven.jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
