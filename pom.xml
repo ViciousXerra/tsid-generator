@@ -9,10 +9,10 @@
     <version>${revision}${changelist}</version>
 
     <properties>
-        <!--        CI friendly props-->
-        <revision>0.3.0</revision>
+        <!--CI friendly props-->
+        <revision>0.3.1</revision>
         <changelist>-SNAPSHOT</changelist>
-        <!--        Project related props and Maven plugins versions -->
+        <!--Project related props and Maven plugins versions -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +24,7 @@
         <maven.jacoco.version>0.8.14</maven.jacoco.version>
         <maven.flatten.plugin>1.7.3</maven.flatten.plugin>
         <maven.versions.plugin>2.21.0</maven.versions.plugin>
-        <!--        Dependencies versions props-->
+        <!--Dependencies versions props-->
         <apache.commons-lang.version>3.20.0</apache.commons-lang.version>
         <junit.version>6.0.3</junit.version>
         <assertj.version>3.27.7</assertj.version>
