@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       postfix:
-        description: 'The version postfix (e.g. -RC1, -RC2). Leave the suffix blank if you are deploying a stable version.'
+        description: 'The version postfix (e.g. -RC1, -RC2). Leave the postfix blank if you are deploying a stable version.'
         type: string
         required: false
         default: ''
@@ -15,7 +15,7 @@ jobs:
     permissions:
       packages: write
     outputs:
-      compare_revision_result: ${{ steps.version.outputs.version }}
+      release_version: ${{ steps.version.outputs.release_version }}
     steps:
       - name: Validate branch
         run: |
@@ -33,8 +33,8 @@ jobs:
       - name: Evaluate version
         id: version
         run: |
-          PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "version=v$PROJECT_VERSION${{ inputs.postfix }}" >> $GITHUB_OUTPUT
+          PROJECT_VERSION=$(./mvnw help:evaluate -Dchangelist=${{ inputs.postfix }} -Dexpression=project.version -q -DforceStdout)
+          echo "release_version=v$PROJECT_VERSION" >> $GITHUB_OUTPUT
       - name: Build and publish JAR with stable version
         run: ./mvnw -B -Dchangelist=${{ inputs.postfix }} deploy --file pom.xml
         env:
@@ -49,11 +49,11 @@ jobs:
           GH_TOKEN: ${{ secrets.TAG_COMMIT_TOKEN }}
         run: |
           echo "Tagging commit:"
-          echo "version: ${{ needs.deploy.outputs.version }}"
+          echo "version: ${{ needs.deploy.outputs.release_version }}"
           echo "commit SHA: ${{ github.sha }}"
           gh api --method POST -H "Accept: application/vnd.github.v3+json" \
             /repos/${{ github.repository }}/git/refs \
-            -f ref='refs/tags/${{ needs.deploy.outputs.version }}' \
+            -f ref='refs/tags/${{ needs.deploy.outputs.release_version }}' \
             -f sha='${{ github.sha }}'
   create_release_draft:
     needs:
@@ -65,7 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ needs.deploy.outputs.version }}" \
+          gh release create "${{ needs.deploy.outputs.release_version }}" \
           --repo="${{ github.repository }}" \
-          --title="Release ${{ needs.deploy.outputs.version }}"
+          --title="Release ${{ needs.deploy.outputs.release_version }}"
           --draft
