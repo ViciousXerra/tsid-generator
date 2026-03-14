@@ -13,7 +13,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
       packages: write
     outputs:
       release_version: ${{ steps.version.outputs.release_version }}
@@ -61,6 +60,8 @@ jobs:
       - deploy
       - tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Create GitHub Release Draft
         env:
