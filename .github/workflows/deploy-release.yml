@@ -69,5 +69,5 @@ jobs:
         run: |
           gh release create "${{ needs.deploy.outputs.release_version }}" \
           --repo="${{ github.repository }}" \
-          --title="Release ${{ needs.deploy.outputs.release_version }}"
+          --title="Release ${{ needs.deploy.outputs.release_version }}" \
           --draft
