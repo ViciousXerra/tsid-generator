@@ -1,4 +1,4 @@
-name: Build and deploy snapshot.
+name: Deploy snapshot.
 
 on:
   pull_request:
@@ -12,22 +12,40 @@ on:
       - 'pom.xml'
 
 jobs:
-  deploy_and_tag:
-    if: ${{ github.event.pull_request.merged == true }}
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    if: ${{ github.event.pull_request.merged == true }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build and publish JAR with -SNAPSHOT version
+        run: ./mvnw -B deploy --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  version_check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true }}
+    outputs:
+      compare_revision_result: ${{ steps.compare.outputs.compare_revision_result }}
+      snapshot_version: ${{ steps.project_version.outputs.snapshot_version }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Checkout base commit before merge
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
@@ -37,7 +55,7 @@ jobs:
           BASE_REVISION=$(./mvnw help:evaluate -Dexpression=revision -q -DforceStdout)
           echo "base_revision=$BASE_REVISION" >> $GITHUB_OUTPUT
       - name: Checkout merged branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -51,25 +69,26 @@ jobs:
         run: |
           COMPARE_RESULT=$(/bin/bash .github/workflows/semver-compare.sh ${{ steps.base.outputs.base_revision }} ${{ steps.head.outputs.head_revision }})
           echo "compare_revision_result=$COMPARE_RESULT" >> $GITHUB_OUTPUT
-      - name: Evaluate new -SNAPSHOT version
+      - name: Evaluate -SNAPSHOT version
         id: project_version
-        if: steps.compare.outputs.compare_revision_result == 1
         run: |
           PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "new_snapshot_version=v$PROJECT_VERSION" >> $GITHUB_OUTPUT
-      - name: Build and publish JAR with -SNAPSHOT version
-        run: ./mvnw -B deploy --file pom.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "snapshot_version=v$PROJECT_VERSION" >> $GITHUB_OUTPUT
+  tag_new_snapshot:
+    needs:
+      - deploy
+      - version_check
+    runs-on: ubuntu-latest
+    if: needs.version_check.outputs.compare_revision_result == 1
+    steps:
       - name: Tagging commit with new -SNAPSHOT version
-        if: steps.compare.outputs.compare_revision_result == 1
         env:
           GH_TOKEN: ${{ secrets.TAG_COMMIT_TOKEN }}
         run: |
           echo "Tagging HEAD commit:"
-          echo "version: ${{ steps.project_version.outputs.new_snapshot_version }}"
-          echo "commit SHA: ${{ github.event.pull_request.head.sha }}
+          echo "version: ${{ needs.version_check.outputs.snapshot_version }}"
+          echo "commit SHA: ${{ github.event.pull_request.head.sha }}"
           gh api --method POST -H "Accept: application/vnd.github.v3+json" \
             /repos/${{ github.repository }}/git/refs \
-            -f ref='refs/tags/${{ steps.project_version.outputs.new_snapshot_version }}' \
+            -f ref='refs/tags/${{ needs.version_check.outputs.snapshot_version }}' \
             -f sha='${{ github.event.pull_request.head.sha }}'
