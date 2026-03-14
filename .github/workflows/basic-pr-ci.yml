@@ -1,13 +1,13 @@
-name: Build and test snapshot.
+name: Basic CI on pull request.
 
 on:
-  workflow_dispatch:
   pull_request:
     branches:
+      - main
       - development
     paths:
       - 'src/**'
-      - '.github/workflows/development-pr-ci.yml'
+      - '.github/workflows/basic-pr-ci.yml'
       - 'pom.xml'
 
 jobs:
