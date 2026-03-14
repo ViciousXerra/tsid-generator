@@ -1,0 +1,71 @@
+name: Deploy release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      postfix:
+        description: 'The version postfix (e.g. -RC1, -RC2). Leave the suffix blank if you are deploying a stable version.'
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    outputs:
+      compare_revision_result: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Validate branch
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "This workflow only runs on main branch. Exiting with failure."
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Evaluate version
+        id: version
+        run: |
+          PROJECT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=v$PROJECT_VERSION${{ inputs.postfix }}" >> $GITHUB_OUTPUT
+      - name: Build and publish JAR with stable version
+        run: ./mvnw -B -Dchangelist=${{ inputs.postfix }} deploy --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  tag:
+    needs:
+      - deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tagging commit with stable version
+        env:
+          GH_TOKEN: ${{ secrets.TAG_COMMIT_TOKEN }}
+        run: |
+          echo "Tagging commit:"
+          echo "version: ${{ needs.deploy.outputs.version }}"
+          echo "commit SHA: ${{ github.sha }}"
+          gh api --method POST -H "Accept: application/vnd.github.v3+json" \
+            /repos/${{ github.repository }}/git/refs \
+            -f ref='refs/tags/${{ needs.deploy.outputs.version }}' \
+            -f sha='${{ github.sha }}'
+  create_release_draft:
+    needs:
+      - deploy
+      - tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release Draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ needs.deploy.outputs.version }}" \
+          --repo="${{ github.repository }}" \
+          --title="Release ${{ needs.deploy.outputs.version }}"
+          --draft
